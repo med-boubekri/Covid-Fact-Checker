@@ -2,4 +2,4 @@ pandas
 re
 nltk
 gensim
-math
+termcolor

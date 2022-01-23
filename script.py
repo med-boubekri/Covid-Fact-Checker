@@ -140,9 +140,9 @@ def indexing(freq_filtered , dat_set)   :
 def ponder( freq_dataset, Dataset , dictionary) : 
     """
     Ponder the dataset : 
-    we are trying to get :
-        - the number of words in the smallet tweet 
-        - the frequence maximal of the column in a tweet
+    we are trying to calculate :
+        - tf  = f(t , d)
+        - idf  = log(N/nt)
     """
     lignes = len(freq_dataset)
     print("[!] length origin : " , lignes)
