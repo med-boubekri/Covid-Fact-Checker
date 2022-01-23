@@ -118,19 +118,23 @@ def frequency_filtering(dataset):
                  new.append(item)
         newwords.append(new)
     return newwords
+
+
 def indexing(freq_filtered , dat_set)   : 
     dictionary = sum(freq_filtered, [])
     dictionary = list(set(dictionary))
     _list = ['document']
     _list.extend(dictionary)
-    Dataset = pd.DataFrame(0, index= dat_set.id, columns=_list)
-    Dataset.document = dat_set.id
-    i = 1
+    index_ = [e for e in range(len(dat_set))]
+    Dataset = pd.DataFrame(0, index = index_, columns=_list)
+    Dataset.document = dat_set.id.copy()
+    print(Dataset.document)
+    
+    i = 0
     for _list in freq_filtered: 
         for item in _list:
             Dataset.loc[i, item] += 1
         i+=1
-    Dataset.to_csv("result2.csv" , header=True)
     return Dataset , dictionary
 
 def ponder( freq_dataset, Dataset , dictionary) : 
@@ -142,9 +146,9 @@ def ponder( freq_dataset, Dataset , dictionary) :
     """
     lignes = len(freq_dataset)
     print("[!] length origin : " , lignes)
-    for i in range(1,lignes+1) : 
+    for i in range(0,lignes) : 
         for item in dictionary : 
-            tf = Dataset.loc[i , item]/len(freq_dataset[i-1])
+            tf = Dataset.loc[i , item]/len(freq_dataset[i])
             freq = 0 
             for line in freq_dataset :
                 if item in line : freq += 1
@@ -156,6 +160,7 @@ def ponder( freq_dataset, Dataset , dictionary) :
 
 def main(): 
     dat_set = pd.read_excel('TestDataset.xlsx')
+    
     data_set_no_url = del_urls(dat_set)
     data_set_cleaned = del_characters(data_set_no_url)
     data_set_harmonized = harmonize(data_set_cleaned)
