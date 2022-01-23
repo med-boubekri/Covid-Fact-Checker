@@ -1,10 +1,11 @@
+from email import header
 import pandas as pd
 import re
+from math import log
 from gensim.utils import tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.stem import PorterStemmer
-from nltk.tokenize import word_tokenize
     
 
 def del_urls(dataset)  :
@@ -127,10 +128,31 @@ def indexing(freq_filtered , dat_set)   :
     i = 1
     for _list in freq_filtered: 
         for item in _list:
-            if i== 117 :  print("[i] item: " , item)
             Dataset.loc[i, item] += 1
         i+=1
-    return Dataset 
+    Dataset.to_csv("result2.csv" , header=True)
+    return Dataset , dictionary
+
+def ponder( freq_dataset, Dataset , dictionary) : 
+    """
+    Ponder the dataset : 
+    we are trying to get :
+        - the number of words in the smallet tweet 
+        - the frequence maximal of the column in a tweet
+    """
+    lignes = len(freq_dataset)
+    print("[!] length origin : " , lignes)
+    for i in range(1,lignes+1) : 
+        for item in dictionary : 
+            tf = Dataset.loc[i , item]/len(freq_dataset[i-1])
+            freq = 0 
+            for line in freq_dataset :
+                if item in line : freq += 1
+            idf = log(lignes/freq , 10)
+            Dataset.loc[i , item] = tf * idf 
+    Dataset.to_csv("result.csv" , header=True)
+    return Dataset
+
 
 def main(): 
     dat_set = pd.read_excel('TestDataset.xlsx')
@@ -142,7 +164,8 @@ def main():
     data_set_words_lemme = lemmatize(data_set_words_cleaned)
     data_set_words_stem = stem(data_set_words_lemme)
     data_set_words_freq_filtered = frequency_filtering(data_set_words_stem)  
-    indexing(data_set_words_freq_filtered ,dat_set)
+    data_set_indexed , dictionary = indexing(data_set_words_freq_filtered ,dat_set)
+    data_set_ponder = ponder( data_set_words_freq_filtered, data_set_indexed , dictionary)
 
 if __name__ == "__main__" :
     import timeit
