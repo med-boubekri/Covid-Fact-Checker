@@ -2,3 +2,4 @@ pandas
 re
 nltk
 gensim
+numpy

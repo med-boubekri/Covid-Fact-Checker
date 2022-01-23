@@ -86,6 +86,14 @@ def stem(words) :
     #print(newords)
     return newords
 
+
+"""
+# sort items in dictionary by value
+import operator
+frequency = sorted(frequency.items(), key=lambda kv: kv[1])
+print(frequency)
+"""
+
 def frequency_filtering(dataset):
     frequency = {}
     # flatten 2d list to 1d list
@@ -101,23 +109,30 @@ def frequency_filtering(dataset):
                   frequency[n] += 1
                else:
                   frequency[n] = 1
-    """
-    # sort items in dictionary by value
-    import operator
-    frequency = sorted(frequency.items(), key=lambda kv: kv[1])
-    print(frequency)
-    """
     newwords = []
     for list_ in dataset:
         new = []
         for item in list_:
             if(frequency[item] > 2):
                  new.append(item)
-            newwords.append(new)
+        newwords.append(new)
     return newwords
-        
+def indexing(freq_filtered , dat_set)   : 
+    dictionary = sum(freq_filtered, [])
+    dictionary = list(set(dictionary))
+    _list = ['document']
+    _list.extend(dictionary)
+    Dataset = pd.DataFrame(0, index= dat_set.id, columns=_list)
+    Dataset.document = dat_set.id
+    i = 1
+    for _list in freq_filtered: 
+        for item in _list:
+            if i== 117 :  print("[i] item: " , item)
+            Dataset.loc[i, item] += 1
+        i+=1
+    return Dataset 
 
-if __name__ == "__main__" :
+def main(): 
     dat_set = pd.read_excel('TestDataset.xlsx')
     data_set_no_url = del_urls(dat_set)
     data_set_cleaned = del_characters(data_set_no_url)
@@ -126,35 +141,15 @@ if __name__ == "__main__" :
     data_set_words_cleaned = clean_words(data_set_words)
     data_set_words_lemme = lemmatize(data_set_words_cleaned)
     data_set_words_stem = stem(data_set_words_lemme)
-    data_set_words_freq_filtered = frequency_filtering(data_set_words_stem)
-    
-    
-    
-    dictionary = sum(data_set_words_freq_filtered, [])
-    dictionary = list(set(dictionary))
-    #print(dictionary)
-    _list = ['document']
-    _list.extend(dictionary)
-    Dataset = pd.DataFrame(0, index= dat_set.id, columns=_list)
-    print(Dataset)
-    
-    
-    Dataset.document = dat_set.id
-    
-    frequency = {}
-    for _list in data_set_words_freq_filtered:
-        i = 1
-        for item in _list:
-            Dataset.loc[i, item] += 1
-        
-        
-    """
-    dictionary.sort()
-    i= 0
-    for n in dictionary:
-        print(i,": ",n)
-        i = i+1
-    """
+    data_set_words_freq_filtered = frequency_filtering(data_set_words_stem)  
+    indexing(data_set_words_freq_filtered ,dat_set)
+
+if __name__ == "__main__" :
+    import timeit
+    start = timeit.default_timer()  
+    main()
+    stop = timeit.default_timer()
+    print('Time: ', stop - start)  
 
 
 
