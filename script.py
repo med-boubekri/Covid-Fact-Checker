@@ -128,9 +128,27 @@ if __name__ == "__main__" :
     data_set_words_stem = stem(data_set_words_lemme)
     data_set_words_freq_filtered = frequency_filtering(data_set_words_stem)
     
-    """
+    
+    
     dictionary = sum(data_set_words_freq_filtered, [])
     dictionary = list(set(dictionary))
+    #print(dictionary)
+    _list = ['document']
+    _list.extend(dictionary)
+    Dataset = pd.DataFrame(0, index= dat_set.id, columns=_list)
+    print(Dataset)
+    
+    
+    Dataset.document = dat_set.id
+    
+    frequency = {}
+    for _list in data_set_words_freq_filtered:
+        i = 1
+        for item in _list:
+            Dataset.loc[i, item] += 1
+        
+        
+    """
     dictionary.sort()
     i= 0
     for n in dictionary:
