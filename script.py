@@ -1,4 +1,3 @@
-from email import header
 import pandas as pd
 import re
 from math import log
@@ -159,7 +158,7 @@ def ponder( freq_dataset, Dataset , dictionary) :
 
 
 def main(): 
-    dat_set = pd.read_excel('TestDataset.xlsx')
+    dat_set = pd.read_excel('Dataset/TestDataset.xlsx')
     
     data_set_no_url = del_urls(dat_set)
     data_set_cleaned = del_characters(data_set_no_url)
