@@ -137,7 +137,7 @@ def indexing(freq_filtered , dat_set)   :
     return Dataset , dictionary
 
 def ponder( freq_dataset, Dataset , dictionary) : 
-    """
+C:\ProgramData\Anaconda3\envs\Pytorch_env    """
     Ponder the dataset : 
     we are trying to calculate :
         - tf  = f(t , d)

@@ -30,10 +30,11 @@ class MyNeural(torch.nn.Module):
     # x = le tensor, 
     def forward(self, x):
         x = self.f1(x)
-        x = Functional.relu(x)
+        x = Functional.relu(x, inplace=False)
         x = self.f2(x)
-        x = Functional.relu(x)
+        x = Functional.relu(x, inplace=False)
         x = self.f3(x)
+        x = Functional.relu(x, inplace=False)
         return x
 
 
@@ -41,6 +42,7 @@ class Train() :
     def __init__(self , data , targets):
         self.data = torch.tensor(data.values)
         self.targets = torch.tensor(targets) 
+        self.targets = self.targets.to(torch.float32) 
         cprint("[+] Starting spliting and normalizing" , 'green')
         self.split()
         self.normalize()
@@ -53,36 +55,44 @@ class Train() :
         self.train_set, self.test_set, self.train_targets, self.test_targets = train_test_split(self.data, self.targets, test_size=0.2, random_state=42)
         self.train_set, self.validation_set, self.train_targets, self.validation_targets = train_test_split(self.train_set, self.train_targets, test_size=0.2)
     def normalize(self) : 
+        self.train_set = self.train_set.float()
+        self.validation_set = self.validation_set.float()
+        self.test_set = self.test_set.float()
         self.train_set = (self.train_set - torch.mean(self.train_set)) /  torch.std(self.train_set)
-        self.validation_set = (self.validation_set - torch.mean(self.validation_set)) /  torch.std(self.validation_set)
-        self.train_set = (self.test_set - torch.mean(self.test_set)) /  torch.std(self.test_set)
+        self.validation_set = (self.validation_set - torch.mean(self.validation_set)) /  torch.std(self.validation_set) 
+        self.test_set = (self.test_set - torch.mean(self.test_set)) /  torch.std(self.test_set) 
+        print("!! mean: ",self.train_set.mean().item())
+        print("!! std: ",self.train_set.std().item())
+    
     def model(self) : 
         self.train = Model(self.train_set , self.train_targets)
         self.test = Model(self.test_set , self.test_targets)
         self.validation = Model(self.validation_set , self.validation_targets)
     def load(self) : 
-        self.batch = 32
+        self.batch = 10
         self.train_DL = DataLoader(self.train, batch_size=self.batch)
         self.test_DL = DataLoader(self.test, batch_size=self.batch)
         self.validation_DL = DataLoader(self.validation, batch_size=self.batch)
     def training(self) :
+        
         self.net = MyNeural(self.data.shape[1])
-        self.entropyloss = torch.nn.CrossEntropyLoss()
+        self.entropyloss = torch.nn.BCELoss()
         self.optim = torch.optim.Adam(self.net.parameters(), lr=0.001)
         self.epochs=5
         for i in range(self.epochs): 
             self.net.train(mode=True)
             train_loss = 0.0
-            i = 0
+            loss = 0
+            j = 0
             for  data, targets in self.train_DL:
                 cprint(f"iteration : {i}" , 'blue')
                 pred_targets = self.net(data)
+                print("pred_targ: ",pred_targets)
                 loss += self.entropyloss(pred_targets, targets)
                 self.optim.zero_grad()
-                loss.backward()
+                loss.backward(retain_graph=True)
                 self.optim.step()
                 train_loss += loss.item()
-                i+=1
             train_loss /= len(self.train_DL)
             valid_loss = 0.0
             correct = 0
