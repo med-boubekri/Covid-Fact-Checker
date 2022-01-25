@@ -1,8 +1,14 @@
 from src.clean import CleanData
 from termcolor import cprint
+from src.model import Train
+
+
 if __name__ == "__main__" :
     import timeit
-    start = timeit.default_timer()  
-    data_set_cleaned = CleanData("Dataset/TestDataset.xlsx" , debug=True)
+    start = timeit.default_timer()
+    file = "Dataset/TestDataset.xlsx"  
+    train_set_data = CleanData( file , debug=True)
+    #train_set_data.Dataset.to_csv("results/dataset.csv" , header=False)
+    Train(train_set_data.Dataset , train_set_data.targets)
     stop = timeit.default_timer()
     cprint('Time: '+ str(stop - start)  , 'green')  

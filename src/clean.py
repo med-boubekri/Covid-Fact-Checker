@@ -13,12 +13,14 @@ class CleanData :
             self.dataset = pd.read_excel(file)
             if debug : 
                 cprint("[+] " , 'green' , end="")
-                cprint("Dataset Downloaded")
+                cprint("Dataset loaded")
         except FileNotFoundError :
             if debug :  
                 cprint("[!] ", 'red' , end="")
                 cprint("File not found . exiting ...")
             exit(0)
+        self.lines = len(self.dataset)
+        self.target()
         try : 
             self.clean_urls()
             self.clean_bad_characters()
@@ -130,16 +132,16 @@ class CleanData :
     def indexing(self):
         """Indexing : using the frequency to create a dataset""" 
         self.dictionary = list(set(sum(self.Words, [])))
-        _list = ['document']
-        _list.extend(self.dictionary)
+        columns = self.dictionary
         index_ = [e for e in range(len(self.dataset))]
-        self.Dataset = pd.DataFrame(0, index = index_, columns=_list)
+        self.Dataset = pd.DataFrame(0, index = index_, columns=columns)
         self.Dataset.document = self.dataset.id.copy()
         i = 0
-        for _list in self.Words: 
-            for item in _list:
+        for line in self.Words: 
+            for item in line:
                 self.Dataset.loc[i, item] += 1
             i+=1
+
     def ponder( self) : 
         """Pondering : rearange the frequency to the intarval [0,1]"""
         lignes = len(self.Words)
@@ -151,4 +153,14 @@ class CleanData :
                     if item in line : freq += 1
                 idf = log(lignes/freq , 10)
                 self.Dataset.loc[i , item] = tf * idf 
-    
+    def target(self) : 
+        self.targets = []
+        for i in range(0 , self.lines ) :
+            if self.dataset.loc[i , 'label'] == 'real' :
+                self.targets.append(1)
+            elif self.dataset.loc[i , 'label'] == 'fake' : 
+                self.targets.append(0) 
+            else : 
+                cprint("[!] " , 'red' , end="")
+                print("Error target not in ('real' , 'fake') , crashing ..")
+                exit(0)

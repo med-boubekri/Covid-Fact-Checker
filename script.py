@@ -177,18 +177,3 @@ if __name__ == "__main__" :
     main()
     stop = timeit.default_timer()
     print('Time: ', stop - start)  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
