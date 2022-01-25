@@ -154,6 +154,7 @@ class CleanData :
                 idf = log(lignes/freq , 10)
                 self.Dataset.loc[i , item] = tf * idf 
     def target(self) : 
+        """store targets (labels) on a list"""
         self.targets = []
         for i in range(0 , self.lines ) :
             if self.dataset.loc[i , 'label'] == 'real' :

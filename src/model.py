@@ -26,6 +26,7 @@ class MyNeural(torch.nn.Module):
         self.f1 = torch.nn.Linear(columns, 32)
         self.f2 = torch.nn.Linear(32, 16)
         self.f3 = torch.nn.Linear(16, 1)
+        self.f3 = torch.nn.Linear(1, 1)
 
     # x = le tensor, 
     def forward(self, x):
@@ -35,14 +36,16 @@ class MyNeural(torch.nn.Module):
         x = Functional.relu(x, inplace=False)
         x = self.f3(x)
         x = Functional.relu(x, inplace=False)
+        x = self.f3(x)
         return x
 
 
 class Train() :
     def __init__(self , data , targets):
         self.data = torch.tensor(data.values)
-        self.targets = torch.tensor(targets) 
-        self.targets = self.targets.to(torch.float32) 
+        self.targets = torch.tensor(targets , dtype=torch.float32) 
+        cprint("data " , 'blue')
+        print(self.data)
         cprint("[+] Starting spliting and normalizing" , 'green')
         self.split()
         self.normalize()
@@ -61,9 +64,6 @@ class Train() :
         self.train_set = (self.train_set - torch.mean(self.train_set)) /  torch.std(self.train_set)
         self.validation_set = (self.validation_set - torch.mean(self.validation_set)) /  torch.std(self.validation_set) 
         self.test_set = (self.test_set - torch.mean(self.test_set)) /  torch.std(self.test_set) 
-        print("!! mean: ",self.train_set.mean().item())
-        print("!! std: ",self.train_set.std().item())
-    
     def model(self) : 
         self.train = Model(self.train_set , self.train_targets)
         self.test = Model(self.test_set , self.test_targets)
@@ -79,20 +79,25 @@ class Train() :
         self.entropyloss = torch.nn.BCELoss()
         self.optim = torch.optim.Adam(self.net.parameters(), lr=0.001)
         self.epochs=5
+        torch.autograd.set_detect_anomaly(True)
         for i in range(self.epochs): 
             self.net.train(mode=True)
             train_loss = 0.0
             loss = 0
             j = 0
+            
             for  data, targets in self.train_DL:
-                cprint(f"iteration : {i}" , 'blue')
-                pred_targets = self.net(data)
+                cprint(f"iteration : {j}" , 'blue')
+                pred_targets = self.net(torch.flatten(data, start_dim=1))
+                targets = targets.unsqueeze(1)
                 print("pred_targ: ",pred_targets)
+                print("targest :" , targets)
                 loss += self.entropyloss(pred_targets, targets)
                 self.optim.zero_grad()
-                loss.backward(retain_graph=True)
+                loss.backward()
                 self.optim.step()
                 train_loss += loss.item()
+                j+=1
             train_loss /= len(self.train_DL)
             valid_loss = 0.0
             correct = 0
