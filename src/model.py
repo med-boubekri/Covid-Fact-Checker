@@ -37,6 +37,8 @@ class MyNeural(torch.nn.Module):
 class Train() :
     def __init__(self , data , targets):
         self.data = torch.tensor(data.values)
+        cprint("[!] original data : " , 'blue')
+        print(self.data)
         self.targets = torch.tensor(targets) 
         self.targets = self.targets.to(torch.float32) 
         cprint("[+] Starting spliting and normalizing" , 'green')
@@ -52,6 +54,7 @@ class Train() :
     def split(self) :
         self.train_set, self.test_set, self.train_targets, self.test_targets = train_test_split(self.data, self.targets, test_size=0.2, random_state=42)
         self.train_set, self.validation_set, self.train_targets, self.validation_targets = train_test_split(self.train_set, self.train_targets, test_size=0.2)
+        
     def normalize(self) : 
         self.train_set = self.train_set.float()
         self.validation_set = self.validation_set.float()
@@ -59,7 +62,7 @@ class Train() :
         self.train_set = (self.train_set - torch.mean(self.train_set)) /  torch.std(self.train_set)
         self.validation_set = (self.validation_set - torch.mean(self.validation_set)) /  torch.std(self.validation_set) 
         self.test_set = (self.test_set - torch.mean(self.test_set)) /  torch.std(self.test_set) 
-
+        
     
     def model(self) : 
         self.train = Model(self.train_set , self.train_targets)

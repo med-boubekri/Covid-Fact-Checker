@@ -6,6 +6,7 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.stem import PorterStemmer
 from termcolor import cprint
+import numpy as np
 
 class CleanData : 
     def __init__(self , file , debug=False) :
@@ -33,6 +34,7 @@ class CleanData :
             self.frequency_filtering()
             self.indexing()
             self.ponder()
+            print("============ Data Frame Nan ", self.dataset.isnull().values.any())
         except Exception as e : 
             if debug : 
                 cprint("[!]"  , 'red' ,end="")
@@ -104,7 +106,7 @@ class CleanData :
                 new.append(lemme.lemmatize(word))
             new_words.append(new)
         self.Words =  new_words
-    def stem(self) : 
+    def stem(self): 
         """Stemming using nltk"""
         porter_stem = PorterStemmer()
         new_words = []
@@ -157,7 +159,13 @@ class CleanData :
                 for line in self.Words :
                     if item in line : freq += 1
                 idf = log(lignes/freq , 10)
-                self.Dataset.loc[i , item] = tf * idf 
+                self.Dataset.loc[i , item] = tf * idf
+        for line in self.Dataset:
+            for item in line:
+                if pd.isna(item):
+                    print('item:',item)
+        print(self.Dataset.isnull().values.any())
+                
     def target(self) : 
         """store targets (labels) on a list"""
         self.targets = []
