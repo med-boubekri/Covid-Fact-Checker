@@ -27,14 +27,14 @@ class MyNeural(torch.nn.Module):
         self.f2 = torch.nn.Linear(32, 16)
         self.f3 = torch.nn.Linear(16, 1)
 
-    # x = le tensor, 
+    # x = the tensor, 
     def forward(self, x):
         x = self.f1(x)
-        x = Functional.relu(x, inplace=False)
+        x = Functional.relu(x)
         x = self.f2(x)
-        x = Functional.relu(x, inplace=False)
+        x = Functional.relu(x)
         x = self.f3(x)
-        x = Functional.relu(x, inplace=False)
+        x = Functional.sigmoid(x)
         return x
 
 
@@ -51,6 +51,8 @@ class Train() :
         self.load()
         cprint("[+] Starting Training" , 'green')
         self.training()
+        cprint("[+] Starting Testing" , 'green')
+        self.testing()
     def split(self) :
         self.train_set, self.test_set, self.train_targets, self.test_targets = train_test_split(self.data, self.targets, test_size=0.2, random_state=42)
         self.train_set, self.validation_set, self.train_targets, self.validation_targets = train_test_split(self.train_set, self.train_targets, test_size=0.2)
@@ -74,23 +76,18 @@ class Train() :
         self.test_DL = DataLoader(self.test, batch_size=self.batch)
         self.validation_DL = DataLoader(self.validation, batch_size=self.batch)
     def training(self) :
-        
         self.net = MyNeural(self.data.shape[1])
         self.entropyloss = torch.nn.BCELoss()
         self.optim = torch.optim.Adam(self.net.parameters(), lr=0.001)
-        self.epochs=5
+        self.epochs=6
         for i in range(self.epochs): 
             self.net.train(mode=True)
             train_loss = 0.0
-            loss = 0
-            j = 0
             for  data, targets in self.train_DL:
-                cprint(f"iteration : {i}" , 'blue')
                 pred_targets = self.net(data)
-                print("pred_targ: ",pred_targets)
-                loss += self.entropyloss(pred_targets, targets)
+                loss = self.entropyloss(pred_targets, targets)
                 self.optim.zero_grad()
-                loss.backward(retain_graph=True)
+                loss.backward()
                 self.optim.step()
                 train_loss += loss.item()
             train_loss /= len(self.train_DL)
@@ -100,13 +97,29 @@ class Train() :
             with torch.no_grad():
                 for data, targets in self.validation_DL:
                     pred_targets = self.net(data)
-                    loss = self.cout(pred_targets, targets)
+                    loss = self.entropyloss(pred_targets, targets)
                     valid_loss += loss.item()
-                    correct += torch.sum(torch.argmax(pred_targets, dim=1) == targets).item()
+                    correct += torch.sum(torch.round(torch.flatten(pred_targets, start_dim=0)) == targets).item()
                 valid_loss /= len(self.validation_DL)
                 correct /= len(self.validation_DL.dataset)
-                print(f"epoch: {i}, train_loss: {train_loss:.4f},test_loss: {valid_loss} valid_loss: {valid_loss:.4f}, correct predictions: {correct*100:.2f}%") 
+                print(f"epoch: {i}, train_loss: {train_loss:.4f}, valid_loss: {valid_loss:.4f}, correct predictions: {correct*100:.2f}%") 
             
+    def testing(self) :
+        test_loss = 0.0
+        test_correct = 0
+        
+        # Indiquer à Pytorch qu'on ne va pas faire de Gradient descent (comme on est dans l'évaluation)
+        with torch.no_grad():
+            # Boucler sur les minibatchs des données de validation (les données et leurs targets):
+                for data, targets in self.test_DL:
+                    pred_targets = self.net(torch.flatten(data, start_dim=1))
+                    loss = self.entropyloss(pred_targets, targets)
+                    test_loss += loss.item()
+                    test_correct += torch.sum(torch.round(torch.flatten(pred_targets, start_dim=0)) == targets).item()
+                test_loss /= len(self.test_DL)
+                test_correct /= len(self.test_DL.dataset)
+        print(f"test_loss: {test_loss:.4f}, correct predictions: {test_correct*100:.2f}%") 
+        
 
 def main(data  , targets) :
     """Split data and create model"""
