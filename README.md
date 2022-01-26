@@ -8,3 +8,5 @@ In this phase we are trying to clean data by
 - Indexation and Ponderation
 
 ## Phase 2 : modeling
+- Neural Network 
+- Binary entropy loss
