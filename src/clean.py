@@ -34,7 +34,6 @@ class CleanData :
             self.frequency_filtering()
             self.indexing()
             self.ponder()
-            print("============ Data Frame Nan ", self.dataset.isnull().values.any())
         except Exception as e : 
             if debug : 
                 cprint("[!]"  , 'red' ,end="")
@@ -152,20 +151,17 @@ class CleanData :
     def ponder( self) : 
         """Pondering : rearange the frequency to the intarval [0,1]"""
         lignes = len(self.Words)
-        for i in range(0,lignes) : 
+        for i in range(lignes) : 
             for item in self.dictionary : 
-                tf = self.Dataset.loc[i , item]/len(self.Words[i])
+                tf , idf= 0 , 0
+                if len(self.Words[i]) != 0: tf = self.Dataset.loc[i , item]/len(self.Words[i])
                 freq = 0 
                 for line in self.Words :
                     if item in line : freq += 1
-                idf = log(lignes/freq , 10)
+                if freq != 0 : idf = log(lignes/freq , 10)
+                self.Dataset.loc[i , item] = 0
                 self.Dataset.loc[i , item] = tf * idf
-        for line in self.Dataset:
-            for item in line:
-                if pd.isna(item):
-                    print('item:',item)
-        print(self.Dataset.isnull().values.any())
-                
+
     def target(self) : 
         """store targets (labels) on a list"""
         self.targets = []

@@ -84,12 +84,6 @@ class Train() :
             for  data, targets in self.train_DL:
                 pred_targets = self.net(data)
                 pred_targets = torch.flatten(pred_targets, start_dim=0)
-                cprint("[!] data : " , 'blue')
-                print(data)
-                cprint("[!] targets : " , 'blue')
-                print(targets)
-                cprint("[!] predicted targets : "  , 'blue')
-                print(pred_targets)
                 loss = self.entropyloss(pred_targets, targets)
                 self.optim.zero_grad()
                 loss.backward()
