@@ -6,9 +6,22 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.stem import PorterStemmer
 from termcolor import cprint
+BAR = [
+    " [=     ]",
+    " [ =    ]",
+    " [  =   ]",
+    " [   =  ]",
+    " [    = ]",
+    " [     =]",
+    " [    = ]",
+    " [   =  ]",
+    " [  =   ]",
+    " [ =    ]",
+]
 
 class CleanData : 
     def __init__(self , file , debug=False) :
+        self.debug = debug
         try : 
             self.dataset = pd.read_excel(file)
             if debug : 
@@ -69,18 +82,23 @@ class CleanData :
             row = row.lower()
             self.dataset_cleaned.loc[i,"tweet"] = row
             i = i+1
+
         
     def tokenized(self) : 
         """Tokenization , return a list of words of each tweet"""
-        self.Words = []
+        self.Words = []     
+        i = 0 
         for row in self.dataset_cleaned["tweet"] : 
             self.Words.append(list(tokenize(row)))
+            if self.debug : print(BAR[i%len(BAR)] , end="\r")
+            i+=1
 
     def clean_words(self) : 
         """Clean words from the stop words list:  unwanted words from english grammer"""
         stopw_english = stopwords.words('english')
         new_line = []
         new_words = []
+
         for line in self.Words :
             new_line  = [] 
             for i in range(len(line)) :

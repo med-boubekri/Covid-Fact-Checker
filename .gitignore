@@ -1,3 +1,4 @@
 .vscode/*
 .vscode/tasks.json
 Lab_2.ipynb
+src/__pycache__/*

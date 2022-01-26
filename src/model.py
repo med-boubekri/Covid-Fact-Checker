@@ -21,13 +21,9 @@ class Model(Dataset)  :
 class MyNeural(torch.nn.Module):
     def __init__(self , columns):
         super(MyNeural, self).__init__()
-        # input/hidden/output layers
-        # Nous devons préciser le nombre de Hidden layers que nous allons utiliser
         self.f1 = torch.nn.Linear(columns, 32)
         self.f2 = torch.nn.Linear(32, 16)
         self.f3 = torch.nn.Linear(16, 1)
-
-    # x = the tensor, 
     def forward(self, x):
         x = self.f1(x)
         x = Functional.relu(x)
@@ -63,8 +59,7 @@ class Train() :
         self.train_set = (self.train_set - torch.mean(self.train_set)) /  torch.std(self.train_set)
         self.validation_set = (self.validation_set - torch.mean(self.validation_set)) /  torch.std(self.validation_set) 
         self.test_set = (self.test_set - torch.mean(self.test_set)) /  torch.std(self.test_set) 
-        print("!! mean: ",self.train_set.mean().item())
-        print("!! std: ",self.train_set.std().item())
+
     
     def model(self) : 
         self.train = Model(self.train_set , self.train_targets)
@@ -85,6 +80,7 @@ class Train() :
             train_loss = 0.0
             for  data, targets in self.train_DL:
                 pred_targets = self.net(data)
+                pred_targets = torch.flatten(pred_targets, start_dim=0)
                 loss = self.entropyloss(pred_targets, targets)
                 self.optim.zero_grad()
                 loss.backward()
@@ -97,9 +93,10 @@ class Train() :
             with torch.no_grad():
                 for data, targets in self.validation_DL:
                     pred_targets = self.net(data)
+                    pred_targets = torch.flatten(pred_targets, start_dim=0)
                     loss = self.entropyloss(pred_targets, targets)
                     valid_loss += loss.item()
-                    correct += torch.sum(torch.round(torch.flatten(pred_targets, start_dim=0)) == targets).item()
+                    correct += torch.sum(torch.round(pred_targets) == targets).item()
                 valid_loss /= len(self.validation_DL)
                 correct /= len(self.validation_DL.dataset)
                 print(f"epoch: {i}, train_loss: {train_loss:.4f}, valid_loss: {valid_loss:.4f}, correct predictions: {correct*100:.2f}%") 
@@ -107,25 +104,14 @@ class Train() :
     def testing(self) :
         test_loss = 0.0
         test_correct = 0
-        
-        # Indiquer à Pytorch qu'on ne va pas faire de Gradient descent (comme on est dans l'évaluation)
         with torch.no_grad():
-            # Boucler sur les minibatchs des données de validation (les données et leurs targets):
                 for data, targets in self.test_DL:
-                    pred_targets = self.net(torch.flatten(data, start_dim=1))
+                    pred_targets = self.net(data)
+                    pred_targets = torch.flatten(pred_targets, start_dim=0)
                     loss = self.entropyloss(pred_targets, targets)
                     test_loss += loss.item()
-                    test_correct += torch.sum(torch.round(torch.flatten(pred_targets, start_dim=0)) == targets).item()
+                    test_correct += torch.sum(torch.round(pred_targets) == targets).item()
                 test_loss /= len(self.test_DL)
                 test_correct /= len(self.test_DL.dataset)
         print(f"test_loss: {test_loss:.4f}, correct predictions: {test_correct*100:.2f}%") 
         
-
-def main(data  , targets) :
-    """Split data and create model"""
-    # data = torch.tensor(data)
-    # targets = torch.tensor(targets)
-    # train_set, test_set, train_targets, test_targets = train_test_split(data, targets, test_size=0.2, random_state=42)
-    # train_set, validation_set, train_targets, validation_targets = train_test_split(train_set, train_targets, test_size=0.2)
-    # train_set = (train_set - torch.mean(train_set)) /  torch.std(train_set)
-
