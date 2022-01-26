@@ -82,6 +82,8 @@ class Train() :
                 pred_targets = self.net(data)
                 pred_targets = torch.flatten(pred_targets, start_dim=0)
                 loss = self.entropyloss(pred_targets, targets)
+                cprint("[!] targets : " , 'blue')
+                print(targets)
                 self.optim.zero_grad()
                 loss.backward()
                 self.optim.step()
@@ -99,7 +101,7 @@ class Train() :
                     correct += torch.sum(torch.round(pred_targets) == targets).item()
                 valid_loss /= len(self.validation_DL)
                 correct /= len(self.validation_DL.dataset)
-                print(f"epoch: {i}, train_loss: {train_loss:.4f}, valid_loss: {valid_loss:.4f}, correct predictions: {correct*100:.2f}%") 
+                cprint(f"epoch: {i}, train_loss: {train_loss:.4f}, valid_loss: {valid_loss:.4f}, correct predictions: {correct*100:.2f}%" , 'yellow') 
             
     def testing(self) :
         test_loss = 0.0

@@ -6,18 +6,6 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.stem import PorterStemmer
 from termcolor import cprint
-BAR = [
-    " [=     ]",
-    " [ =    ]",
-    " [  =   ]",
-    " [   =  ]",
-    " [    = ]",
-    " [     =]",
-    " [    = ]",
-    " [   =  ]",
-    " [  =   ]",
-    " [ =    ]",
-]
 
 class CleanData : 
     def __init__(self , file , debug=False) :
@@ -90,7 +78,6 @@ class CleanData :
         i = 0 
         for row in self.dataset_cleaned["tweet"] : 
             self.Words.append(list(tokenize(row)))
-            if self.debug : print(BAR[i%len(BAR)] , end="\r")
             i+=1
 
     def clean_words(self) : 
