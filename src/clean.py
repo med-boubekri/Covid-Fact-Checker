@@ -11,6 +11,7 @@ import numpy as np
 class CleanData : 
     def __init__(self , file , debug=False, index_col=id) :
         self.debug = debug
+        self.Dataset =pd.DataFrame()
         try : 
             self.dataset = pd.read_excel(file)
             if debug : 
@@ -39,7 +40,7 @@ class CleanData :
                 cprint("Data cleaned")
         except Exception as e : 
             if debug : 
-                cprint("[!]"  , 'red' ,end="")
+                cprint("[!] "  , 'red' ,end="")
                 print("Error : ")
                 print(e)
             cprint("[!]"  , 'red' ,end="")
