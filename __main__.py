@@ -11,12 +11,6 @@ if __name__ == "__main__" :
 
     import timeit
     start = timeit.default_timer()
-<<<<<<< HEAD
-    file = "Dataset/DS_800.xlsx"
-    train_set_data = CleanData( file , debug=True)
-    train_set_data.Dataset.to_csv("results/res2.csv")
-    Train(train_set_data.Dataset , train_set_data.targets)
-=======
     inFile = "Dataset/DS_800.xlsx"
     outFile = "results/Cleaned_DS.csv"
     
@@ -35,7 +29,6 @@ if __name__ == "__main__" :
     # cprint("[!] original data : " , 'blue')
     # print(train_set_data.Dataset)
     Train(DataSet , targets)
->>>>>>> 69b6dbcc7e0a070fc201d02839e5918a90b02cbb
     stop = timeit.default_timer()
     cprint('Time: '+ str(stop - start) , 'green')
     
