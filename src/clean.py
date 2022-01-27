@@ -21,9 +21,9 @@ class CleanData :
                 cprint("[!] ", 'red' , end="")
                 cprint("File not found . exiting ...")
             exit(0)
-        self.lines = len(self.dataset)
-        self.target()
         try : 
+            self.lines = len(self.dataset)
+            self.target()
             self.clean_urls()
             self.clean_bad_characters()
             self.harmonize()
@@ -34,6 +34,9 @@ class CleanData :
             self.frequency_filtering()
             self.indexing()
             self.ponder()
+            if debug : 
+                cprint("[+] " , 'green' , end="")
+                cprint("Data cleaned")
         except Exception as e : 
             if debug : 
                 cprint("[!]"  , 'red' ,end="")
