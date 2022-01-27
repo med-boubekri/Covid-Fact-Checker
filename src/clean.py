@@ -9,7 +9,7 @@ from termcolor import cprint
 import numpy as np
 
 class CleanData : 
-    def __init__(self , file , debug=False) :
+    def __init__(self , file , debug=False, index_col=id) :
         self.debug = debug
         try : 
             self.dataset = pd.read_excel(file)
@@ -21,6 +21,10 @@ class CleanData :
                 cprint("[!] ", 'red' , end="")
                 cprint("File not found . exiting ...")
             exit(0)
+<<<<<<< HEAD
+=======
+        self.lines = len(self.dataset)
+>>>>>>> 69b6dbcc7e0a070fc201d02839e5918a90b02cbb
         try : 
             self.lines = len(self.dataset)
             self.target()
@@ -34,9 +38,13 @@ class CleanData :
             self.frequency_filtering()
             self.indexing()
             self.ponder()
+<<<<<<< HEAD
             if debug : 
                 cprint("[+] " , 'green' , end="")
                 cprint("Data cleaned")
+=======
+            self.target()
+>>>>>>> 69b6dbcc7e0a070fc201d02839e5918a90b02cbb
         except Exception as e : 
             if debug : 
                 cprint("[!]"  , 'red' ,end="")
@@ -142,6 +150,7 @@ class CleanData :
         """Indexing : using the frequency to create a dataset""" 
         self.dictionary = list(set(sum(self.Words, [])))
         columns = self.dictionary
+        columns.append("label")
         index_ = [e for e in range(len(self.dataset))]
         self.Dataset = pd.DataFrame(0, index = index_, columns=columns)
         self.Dataset.document = self.dataset.id.copy()
@@ -167,12 +176,11 @@ class CleanData :
 
     def target(self) : 
         """store targets (labels) on a list"""
-        self.targets = []
         for i in range(0 , self.lines ) :
             if self.dataset.loc[i , 'label'] == 'real' :
-                self.targets.append(1)
+                self.Dataset.loc[i, "label"] = 1
             elif self.dataset.loc[i , 'label'] == 'fake' : 
-                self.targets.append(0) 
+                self.Dataset.loc[i, "label"] = 0
             else : 
                 cprint("[!] " , 'red' , end="")
                 print("Error target not in ('real' , 'fake') , crashing ..")
