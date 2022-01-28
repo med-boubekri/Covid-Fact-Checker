@@ -38,26 +38,28 @@ class MyNeural(torch.nn.Module):
 
 class Train() :
     def __init__(self , data , targets , test_data , test_targets ):
+        """converting dataframes to tensors + launching the model"""
         float_arr = np.vstack(data.values[:, 0]).astype(np.float)
         self.data = torch.tensor(float_arr)
         self.targets = torch.tensor(targets).to(torch.float32)
         float_arr_test = np.vstack(test_data.values[:, 0]).astype(np.float)
         self.test_set = torch.tensor(float_arr_test)
         self.test_targets = torch.tensor(test_targets).to(torch.float32)
-        pprint("self.data :" ,type(self.data))
+        print("self.data :" ,type(self.data))
         self.split()
-        exit(0)
         self.normalize()
         self.model()
         self.load()
         self.training()
         self.testing()
     def split(self) :
+        """splitting the dataset and give 20 % to validation"""
         # self.train_set, self.test_set, self.train_targets, self.test_targets = train_test_split(self.data, self.targets, test_size=0.2, random_state=42)
-        self.train_set, self.validation_set, self.train_targets, self.validation_targets = train_test_split(self.train_set, self.train_targets, test_size=0.2)
-        pprint("self.train_set :" ,type(self.train_set))
+        self.train_set, self.validation_set, self.train_targets, self.validation_targets = train_test_split(self.data, self.targets, test_size=0.1)
+        print("self.train_set :" ,type(self.train_set))
        
     def normalize(self) : 
+        """convert to float and normalize datasets : mean 0 and standard deviation 1"""
         self.train_set = self.train_set.float()
         self.validation_set = self.validation_set.float()
         self.test_set = self.test_set.float()
@@ -66,16 +68,19 @@ class Train() :
         self.test_set = (self.test_set - torch.mean(self.test_set)) /  torch.std(self.test_set) 
         
     
-    def model(self) : 
+    def model(self) :
+        """modelize the datasets to prepare it for the model"""
         self.train = Model(self.train_set , self.train_targets)
         self.test = Model(self.test_set , self.test_targets)
         self.validation = Model(self.validation_set , self.validation_targets)
     def load(self) : 
+        """covnvert the data models to dataloader"""
         self.batch = 10
         self.train_DL = DataLoader(self.train, batch_size=self.batch)
         self.test_DL = DataLoader(self.test, batch_size=self.batch)
         self.validation_DL = DataLoader(self.validation, batch_size=self.batch)
     def training(self) :
+        """Training the model"""
         self.net = MyNeural(self.data.shape[1])
         self.entropyloss = torch.nn.BCELoss()
         self.optim = torch.optim.Adam(self.net.parameters(), lr=0.001)
@@ -107,6 +112,7 @@ class Train() :
                 cprint(f"epoch: {i}, train_loss: {train_loss:.4f}, valid_loss: {valid_loss:.4f}, correct predictions: {correct*100:.2f}%" , 'yellow') 
             
     def testing(self) :
+        """Testing the model"""
         test_loss = 0.0
         test_correct = 0
         with torch.no_grad():
@@ -118,5 +124,5 @@ class Train() :
                     test_correct += torch.sum(torch.round(pred_targets) == targets).item()
                 test_loss /= len(self.test_DL)
                 test_correct /= len(self.test_DL.dataset)
-        print(f"test_loss: {test_loss:.4f}, correct predictions: {test_correct*100:.2f}%") 
+        cprint(f"test_loss: {test_loss:.4f}, correct predictions: {test_correct*100:.2f}%" , 'green') 
         

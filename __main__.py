@@ -19,7 +19,7 @@ if __name__ == "__main__" :
     # print(targets)
     # Test set
     inFile= "Dataset/TestSet.xlsx"
-    test_set_data = CleanData( inFile , debug=True)
+    test_set_data = CleanData( inFile , debug=False , test=True)
     Train(train_set_data.Dataset ,train_set_data.targets , train_set_data.Dataset , train_set_data.targets)
     #DataSet.drop(['label'], axis='columns', inplace=True)
     #print(DataSet)
@@ -27,4 +27,3 @@ if __name__ == "__main__" :
     # print(train_set_data.Dataset)
     stop = timeit.default_timer()
     cprint('Time: '+ str(stop - start) , 'green')
-
