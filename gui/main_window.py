@@ -6,7 +6,7 @@
 #
 # WARNING! All changes made in this file will be lost!
 from src.clean import CleanData
-from PyQt5 import QtCore, QtGui, QtWidgets 
+from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import  QFileDialog,QMessageBox
 from pathlib import Path
 import os
@@ -18,6 +18,7 @@ class Ui_MainWindow(object):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(433, 272)
         MainWindow.setFixedSize(QtCore.QSize(433, 272))
+        MainWindow.setWindowIcon(QtGui.QIcon("images/logo.png"))
         self.main_widget = QtWidgets.QWidget(MainWindow)
         self.main_widget.setObjectName("main_widget")
         self.verticalLayoutWidget = QtWidgets.QWidget(self.main_widget)
@@ -33,9 +34,11 @@ class Ui_MainWindow(object):
         self.brows_layout.setSizeConstraint(QtWidgets.QLayout.SetNoConstraint)
         self.brows_layout.setObjectName("brows_layout")
         self.file_path_edit = QtWidgets.QLineEdit(self.verticalLayoutWidget)
+        self.file_path_edit.setMinimumSize(QtCore.QSize(60, 30))
         self.file_path_edit.setObjectName("file_path_edit")
         self.brows_layout.addWidget(self.file_path_edit)
         self.browse_button = QtWidgets.QPushButton(self.verticalLayoutWidget)
+        self.browse_button.setMinimumSize(QtCore.QSize(40, 30))
         self.browse_button.setObjectName("browse_button")
         self.brows_layout.addWidget(self.browse_button)
         self.vertical_layout.addLayout(self.brows_layout)
@@ -87,7 +90,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Tweet Spam Covid 19 Detector v1.0 "))
         self.browse_button.setText(_translate("MainWindow", "Browse"))
         self.real_or_fake.setText(_translate("MainWindow", "Real or Fake"))
         self.menu_file.setTitle(_translate("MainWindow", "File"))
@@ -133,7 +136,6 @@ class Ui_MainWindow(object):
         print(CleanData.clean(line))
 
         
-        
 
 
 
@@ -141,6 +143,8 @@ if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
+    with open("src/style.css") as fd : 
+        app.setStyleSheet(fd.read())
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
     MainWindow.show()

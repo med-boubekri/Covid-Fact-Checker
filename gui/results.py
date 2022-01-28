@@ -70,6 +70,8 @@ class Ui_Results(object):
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
+    with open("src/style.css") as fd : 
+        app.setStyleSheet(fd.read())
     Results = QtWidgets.QWidget()
     ui = Ui_Results()
     ui.setupUi(Results)
