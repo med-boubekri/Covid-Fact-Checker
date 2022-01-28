@@ -6,6 +6,7 @@ from termcolor import cprint
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader 
 import torch.nn.functional as Functional
+import numpy as np
 
 class Model(Dataset)  :
     def __init__(self , dataset , targets):
@@ -36,9 +37,9 @@ class MyNeural(torch.nn.Module):
 
 class Train() :
     def __init__(self , data , targets):
-        self.data = torch.tensor(data.values)
+        float_arr = np.vstack(data.values[:, 0]).astype(np.float)
+        self.data = torch.tensor(float_arr)
         cprint("[!] original data : " , 'blue')
-        print(self.data)
         self.targets = torch.tensor(targets) 
         self.targets = self.targets.to(torch.float32) 
         cprint("[+] Starting spliting and normalizing" , 'green')
