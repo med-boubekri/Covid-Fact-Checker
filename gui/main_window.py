@@ -97,7 +97,7 @@ class Ui_MainWindow(object):
         self.actionLICENSE.setText(_translate("MainWindow", "License"))
         self.actionRecent_2.setText(_translate("MainWindow", "Recent Files"))
     def browsfiles(self) : 
-        fname = QFileDialog.getOpenFileName(self.main_widget , 'Open File' , HOME , "TXT (*.txt))")
+        fname = QFileDialog.getOpenFileName(self.main_widget , 'Open File' , HOME , "TXT (*.txt)")
         self.file_path_edit.setText(fname[0])
     def startmodel(self) : 
         if self.file_path_edit.text() != "" :
