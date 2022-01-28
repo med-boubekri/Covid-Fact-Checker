@@ -1,9 +1,8 @@
-from src.clean import CleanData
+from gui.src.clean import CleanData
 from termcolor import cprint
-from src.model import Train
+from gui.src.model import Train
 import pandas as pd
 from sys import exit
-import os
 
 
 
@@ -11,34 +10,21 @@ if __name__ == "__main__" :
 
     import timeit
     start = timeit.default_timer()
-    inFile = "Dataset/DataSet.xlsx"
+    inFile = "Dataset/TrainSet.xlsx"
     outFile = "results/Cleaned_DS_test.csv"
-    train_set_data = CleanData( inFile , debug=True)
-    DataSet = train_set_data.Dataset
-    targets = train_set_data.targets
+    # Train set 
+    train_set_data = CleanData( inFile , debug=False  , test = False)
+    # DataSet = train_set_data.Dataset
+    # targets = train_set_data.targets
+    # print(targets)
+    # Test set
+    inFile= "Dataset/TestSet.xlsx"
+    test_set_data = CleanData( inFile , debug=True)
+    Train(train_set_data.Dataset ,train_set_data.targets , train_set_data.Dataset , train_set_data.targets)
     #DataSet.drop(['label'], axis='columns', inplace=True)
     #print(DataSet)
     # cprint("[!] original data : " , 'blue')
     # print(train_set_data.Dataset)
-    Train(DataSet , targets)
     stop = timeit.default_timer()
     cprint('Time: '+ str(stop - start) , 'green')
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    

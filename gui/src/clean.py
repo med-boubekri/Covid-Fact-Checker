@@ -11,18 +11,27 @@ import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 import sys
 import os
+from pprint import pprint
 
 class CleanData : 
-    def __init__(self , file , debug=False, index_col=id) :
-        self.debug = debug
+    match_url = r'(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})'
+    match_hashtag = r'#([^\s]+)'
+    match_mention = r'@([^\s]+)'
+    match_char = r"[^0-9A-Za-z\s'-]*"
+    vectorizer = TfidfVectorizer()
+    def __init__(self , file , debug=False , test=False) :
+        self.test =test
+        self.debug =debug
         self.Dataset =pd.DataFrame()
+        cprint("[+] File :" , 'yellow' , end="")
+        cprint(file)
         try : 
             self.dataset = pd.read_excel(file)
-            if debug : 
+            if self.debug : 
                 cprint("[+] " , 'green' , end="")
                 cprint("Dataset loaded")
         except FileNotFoundError :
-            if debug :  
+            if self.debug :  
                 cprint("[!] ", 'red' , end="")
                 cprint("File not found . exiting ...")
             exit(0)
@@ -33,42 +42,44 @@ class CleanData :
             self.clean_bad_characters()
             self.harmonize()
             self.ponderation()
-            if debug : 
+            if self.debug : 
                 cprint("[+] " , 'green' , end="")
                 cprint("Data cleaned")
         except Exception as e : 
-            if debug : 
-                cprint("[!] "  , 'red' ,end="")
-                print("Error : ")
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                print(exc_type, fname, exc_tb.tb_lineno)
-                print(e)
-            cprint("[!]"  , 'red' ,end="")
-            print("Error occured , exiting ... ")
+                if self.debug : 
+                    cprint("[!] "  , 'red' ,end="")
+                    print("Error : ")
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                    print(exc_type, fname, exc_tb.tb_lineno)
+                    print(e)
+                cprint("[!]"  , 'red' ,end="")
+                print("Error occured , exiting ... ")
     def clean_urls(self) : 
         """"Clean urls from datasets"""
-        match = r'(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})'
         i = 0
         self.dataset_cleaned = self.dataset.copy()
         for row in self.dataset_cleaned["tweet"] : 
             row = str(row)
-            row = re.sub(match, '', row)
+            row = re.sub(self.match_url, '', row)
             self.dataset_cleaned.loc[i,"tweet"] = row
             i = i+1
+        if self.debug: 
+            cprint("[+] " , 'green' , end="")
+            print("clean_urls finished Successfully")
     def clean_bad_characters(self) : 
         """"Delete hashtags, mentions and any characters other than ' and -"""
-        match_hashtag = r'#([^\s]+)'
-        match_mention = r'@([^\s]+)'
-        match_char = r"[^0-9A-Za-z\s'-]*"
         i = 0
         for row in self.dataset_cleaned["tweet"] : 
             row = str(row)
-            row = re.sub(match_hashtag, '', row)
-            row = re.sub(match_mention, '', row)
-            row = re.sub(match_char, '', row)
+            row = re.sub(self.match_hashtag, '', row)
+            row = re.sub(self.match_mention, '', row)
+            row = re.sub(self.match_char, '', row)
             self.dataset_cleaned.loc[i,"tweet"] = row
             i = i+1
+        if self.debug: 
+            cprint("[+] " , 'green' , end="")
+            print("clean_characters finished Successfully")
     def harmonize(self):
         """"lowercase all tweets of the cleaned dataset """
         i = 0
@@ -76,14 +87,21 @@ class CleanData :
             row = row.lower()
             self.dataset_cleaned.loc[i,"tweet"] = row
             i = i+1
+        if self.debug: 
+            cprint("[+] " , 'green' , end="")
+            print("harmonize finished Successfully")
 
-    def extract_tokens(self, text) :
+    def extract_tokens(self) :
         """Tokenization , return a list of words of each tweet"""
         Words = []     
         i = 0 
         for row in self.dataset_cleaned["tweet"] : 
             Words.append(list(tk(row)))
             i+=1
+        if self.debug: 
+            cprint("[+] " , 'green' , end="")
+            print("extract_tokens finished Successfully")
+
         return Words
 
     def clean_words(self, words) : 
@@ -98,6 +116,9 @@ class CleanData :
                 if line[i] not in stopw_english :  
                     new_line.append(line[i])
             new_words.append(new_line)
+        if self.debug: 
+            cprint("[+] " , 'green' , end="")
+            print("clean_words finished Successfully")
         return new_words
         
     def lemmatize(self, words) : 
@@ -109,7 +130,11 @@ class CleanData :
             for word in line : 
                 new.append(lemme.lemmatize(word))
             new_words.append(new)
+        if self.debug: 
+            cprint("[+] " , 'green' , end="")
+            print("lemmatize finished Successfully")
         return new_words
+    
     def stem(self, words): 
         """Stemming using nltk"""
         porter_stem = PorterStemmer()
@@ -119,6 +144,9 @@ class CleanData :
             for word in line : 
                 new.append(porter_stem.stem(word))
             new_words.append(new)
+        if self.debug: 
+            cprint("[+] " , 'green' , end="")
+            print("stem finished Successfully")
         return new_words
         
     def frequency_filtering(self, words):
@@ -140,28 +168,37 @@ class CleanData :
                 if(frequency[item] > 2):
                     new_line.append(item)
             new_words.append(new_line)
+        if self.debug: 
+            cprint("[+] " , 'green' , end="")
+            print("frequency finished Successfully")
         return new_words
         
-    def tokenize(self, text):
-        tokens = self.extract_tokens(text)
+    def tokenize(self):
+        """tokenize all tweets and return a list of tokens cleaned"""
+        tokens = self.extract_tokens()
         tokens = self.clean_words(tokens)
         tokens = self.lemmatize(tokens)
         tokens = self.stem(tokens)
         tokens = self.frequency_filtering(tokens)
+        if self.debug: 
+            cprint("[+] " , 'green' , end="")
+            print("tokenize finished Successfully")
         return tokens
     
-    
     def ponderation(self):
+        """vectorizing the tokens into a new Dataframe with TFIDF pondering"""
         tweets = self.dataset_cleaned['tweet']
         tweets = np.array(tweets)
-        tweets_tokenized = self.tokenize(self.dataset_cleaned['tweet'])
+        tweets_tokenized = self.tokenize()
         tweets_tokenized_txt = [" ".join(x) for x in tweets_tokenized]
-        vectorizer = TfidfVectorizer()
-        tfidf_encodings = vectorizer.fit_transform(tweets_tokenized_txt)
+        if self.test == False : tfidf_encodings = self.vectorizer.fit_transform(tweets_tokenized_txt)
+        else : tfidf_encodings = self.vectorizer.transform(tweets_tokenized_txt)
         tfidf_encodings_array = list(tfidf_encodings.toarray())
         self.Dataset = pd.DataFrame(0, index = self.dataset.index, columns=["tweet"])
         self.Dataset.tweet = tfidf_encodings_array
-        
+        if self.debug: 
+            cprint("[+] " , 'green' , end="")
+            print("Pondering finished Successfully")    
 
     def target(self) : 
         """store targets (labels) on a list"""
@@ -175,4 +212,18 @@ class CleanData :
                 cprint("[!] " , 'red' , end="")
                 print("Error target not in ('real' , 'fake') , crashing ..")
                 exit(0)
-        
+        if self.debug: 
+            cprint("[+] " , 'green' , end="")
+            print("target finished Successfully")
+
+    @classmethod
+    def clean(cls , tweet) :
+        """clean a tweet just like we do to the dataset"""
+        tweet = re.sub(cls.match_url, '', tweet)
+        tweet = re.sub(cls.match_hashtag, '', tweet)
+        tweet = re.sub(cls.match_mention, '', tweet)
+        tweet = re.sub(cls.match_char, '', tweet)    
+        tweet = tweet.lower()
+        tfidf_encoding = cls.vectorizer.transform(tweet)
+        pprint(tfidf_encoding.toarray())
+        return tweet

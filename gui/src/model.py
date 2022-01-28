@@ -7,6 +7,7 @@ from torch.utils.data import Dataset
 from torch.utils.data import DataLoader 
 import torch.nn.functional as Functional
 import numpy as np
+from pprint import pprint
 
 class Model(Dataset)  :
     def __init__(self , dataset , targets):
@@ -36,26 +37,26 @@ class MyNeural(torch.nn.Module):
 
 
 class Train() :
-    def __init__(self , data , targets):
+    def __init__(self , data , targets , test_data , test_targets ):
         float_arr = np.vstack(data.values[:, 0]).astype(np.float)
         self.data = torch.tensor(float_arr)
-        cprint("[!] original data : " , 'blue')
-        self.targets = torch.tensor(targets) 
-        self.targets = self.targets.to(torch.float32) 
-        cprint("[+] Starting spliting and normalizing" , 'green')
+        self.targets = torch.tensor(targets).to(torch.float32)
+        float_arr_test = np.vstack(test_data.values[:, 0]).astype(np.float)
+        self.test_set = torch.tensor(float_arr_test)
+        self.test_targets = torch.tensor(test_targets).to(torch.float32)
+        pprint("self.data :" ,type(self.data))
         self.split()
+        exit(0)
         self.normalize()
-        cprint("[+] Starting modeling and loading " , 'green')
         self.model()
         self.load()
-        cprint("[+] Starting Training" , 'green')
         self.training()
-        cprint("[+] Starting Testing" , 'green')
         self.testing()
     def split(self) :
-        self.train_set, self.test_set, self.train_targets, self.test_targets = train_test_split(self.data, self.targets, test_size=0.2, random_state=42)
+        # self.train_set, self.test_set, self.train_targets, self.test_targets = train_test_split(self.data, self.targets, test_size=0.2, random_state=42)
         self.train_set, self.validation_set, self.train_targets, self.validation_targets = train_test_split(self.train_set, self.train_targets, test_size=0.2)
-        
+        pprint("self.train_set :" ,type(self.train_set))
+       
     def normalize(self) : 
         self.train_set = self.train_set.float()
         self.validation_set = self.validation_set.float()

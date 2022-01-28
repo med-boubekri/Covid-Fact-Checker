@@ -5,7 +5,7 @@
 # Created by: PyQt5 UI code generator 5.9.2
 #
 # WARNING! All changes made in this file will be lost!
-
+from src.clean import CleanData
 from PyQt5 import QtCore, QtGui, QtWidgets 
 from PyQt5.QtWidgets import  QFileDialog,QMessageBox
 from pathlib import Path
@@ -17,7 +17,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(433, 272)
-        MainWindow.setMinimumSize(QtCore.QSize(30, 30))
+        MainWindow.setFixedSize(QtCore.QSize(433, 272))
         self.main_widget = QtWidgets.QWidget(MainWindow)
         self.main_widget.setObjectName("main_widget")
         self.verticalLayoutWidget = QtWidgets.QWidget(self.main_widget)
@@ -100,18 +100,16 @@ class Ui_MainWindow(object):
         fname = QFileDialog.getOpenFileName(self.main_widget , 'Open File' , HOME , "TXT (*.txt)")
         self.file_path_edit.setText(fname[0])
     def startmodel(self) : 
-        if self.file_path_edit.text() != "" :
-            print("We got  a file olla")
-        else : 
+        if self.file_path_edit.text()  == "": 
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Critical)
             msg.setText("Error")
-            msg.setInformativeText("File not specified or extension not known \n ")
+            msg.setInformativeText("Please choose a file \n ")
             msg.setWindowTitle("Error")
             msg.exec_()
             return
         file  = self.file_path_edit.text() 
-        if os.access('does_not_exist.txt', os.R_OK) == False : 
+        if os.access(file, os.R_OK) == False : 
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Critical)
             msg.setText("Error")
@@ -119,6 +117,22 @@ class Ui_MainWindow(object):
             msg.setWindowTitle("Error")
             msg.exec_()
             return
+        number_lines = 0
+        results = {}
+        with open(file , 'r') as fd : 
+            lines = fd.readlines()
+            for line in lines : 
+                line = line.strip()
+                if line == "" : 
+                    continue
+                results[line] = self.predict(line)
+                number_lines += 1
+    def predict(self , line) :
+        """predict a tweet if it is real (true) or fake (false)"""
+        print("[+] lin : " , line)
+        print(CleanData.clean(line))
+
+        
         
 
 
