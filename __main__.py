@@ -20,7 +20,7 @@ if __name__ == "__main__" :
     # Test set
     inFile= "Dataset/TestSet.xlsx"
     test_set_data = CleanData( inFile , debug=False , test=True)
-    Train(train_set_data.Dataset ,train_set_data.targets , train_set_data.Dataset , train_set_data.targets)
+    Train(train_set_data.Dataset ,train_set_data.targets , train_set_data.Dataset , train_set_data.targets , debug=True)
     #DataSet.drop(['label'], axis='columns', inplace=True)
     #print(DataSet)
     # cprint("[!] original data : " , 'blue')

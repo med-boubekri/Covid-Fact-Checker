@@ -37,7 +37,8 @@ class MyNeural(torch.nn.Module):
 
 
 class Train() :
-    def __init__(self , data , targets , test_data , test_targets ):
+    def __init__(self , data , targets , test_data , test_targets , debug=False):
+        self.debug = debug 
         """converting dataframes to tensors + launching the model"""
         float_arr = np.vstack(data.values[:, 0]).astype(np.float)
         self.data = torch.tensor(float_arr)
@@ -56,7 +57,7 @@ class Train() :
         """splitting the dataset and give 20 % to validation"""
         # self.train_set, self.test_set, self.train_targets, self.test_targets = train_test_split(self.data, self.targets, test_size=0.2, random_state=42)
         self.train_set, self.validation_set, self.train_targets, self.validation_targets = train_test_split(self.data, self.targets, test_size=0.1)
-        print("self.train_set :" ,type(self.train_set))
+        if self.debug : print("self.train_set :" ,type(self.train_set))
        
     def normalize(self) : 
         """convert to float and normalize datasets : mean 0 and standard deviation 1"""
@@ -109,7 +110,7 @@ class Train() :
                     correct += torch.sum(torch.round(pred_targets) == targets).item()
                 valid_loss /= len(self.validation_DL)
                 correct /= len(self.validation_DL.dataset)
-                cprint(f"epoch: {i}, train_loss: {train_loss:.4f}, valid_loss: {valid_loss:.4f}, correct predictions: {correct*100:.2f}%" , 'yellow') 
+                if self.debug : cprint(f"epoch: {i}, train_loss: {train_loss:.4f}, valid_loss: {valid_loss:.4f}, correct predictions: {correct*100:.2f}%" , 'yellow') 
             
     def testing(self) :
         """Testing the model"""
@@ -124,5 +125,5 @@ class Train() :
                     test_correct += torch.sum(torch.round(pred_targets) == targets).item()
                 test_loss /= len(self.test_DL)
                 test_correct /= len(self.test_DL.dataset)
-        cprint(f"test_loss: {test_loss:.4f}, correct predictions: {test_correct*100:.2f}%" , 'green') 
+        if self.debug :cprint(f"test_loss: {test_loss:.4f}, correct predictions: {test_correct*100:.2f}%" , 'green') 
         
