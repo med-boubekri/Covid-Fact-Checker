@@ -1,21 +1,17 @@
 import pandas as pd
 import re
 from math import log
-from gensim.utils import tokenize as tk
-import nltk
+from gensim.utils import tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.stem import PorterStemmer
 from termcolor import cprint
 import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
-import sys
-import os
 
 class CleanData : 
     def __init__(self , file , debug=False, index_col=id) :
         self.debug = debug
-        self.Dataset =pd.DataFrame()
+        self.Dataset = pd.DataFrame()
         try : 
             self.dataset = pd.read_excel(file)
             if debug : 
@@ -32,7 +28,13 @@ class CleanData :
             self.clean_urls()
             self.clean_bad_characters()
             self.harmonize()
-            self.ponderation()
+            self.tokenized()
+            self.clean_words()
+            self.lemmatize()
+            self.stem()
+            self.frequency_filtering()
+            self.indexing()
+            self.ponder()
             if debug : 
                 cprint("[+] " , 'green' , end="")
                 cprint("Data cleaned")
@@ -40,9 +42,6 @@ class CleanData :
             if debug : 
                 cprint("[!] "  , 'red' ,end="")
                 print("Error : ")
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                print(exc_type, fname, exc_tb.tb_lineno)
                 print(e)
             cprint("[!]"  , 'red' ,end="")
             print("Error occured , exiting ... ")
@@ -77,91 +76,83 @@ class CleanData :
             self.dataset_cleaned.loc[i,"tweet"] = row
             i = i+1
 
-    def extract_tokens(self, text) :
+        
+    def tokenized(self) : 
         """Tokenization , return a list of words of each tweet"""
-        Words = []     
+        self.Words = []     
         i = 0 
         for row in self.dataset_cleaned["tweet"] : 
-            Words.append(list(tk(row)))
+            self.Words.append(list(tokenize(row)))
             i+=1
-        return Words
 
-    def clean_words(self, words) : 
+    def clean_words(self) : 
         """Clean words from the stop words list:  unwanted words from english grammer"""
         stopw_english = stopwords.words('english')
         new_line = []
         new_words = []
 
-        for line in words :
+        for line in self.Words :
             new_line  = [] 
             for i in range(len(line)) :
                 if line[i] not in stopw_english :  
                     new_line.append(line[i])
             new_words.append(new_line)
-        return new_words
+        self.Words = new_words
         
-    def lemmatize(self, words) : 
+    def lemmatize(self) : 
         """lemmatization using nltk library"""
         lemme = WordNetLemmatizer()
         new_words = []
-        for line in words : 
+        for line in self.Words : 
             new = []
             for word in line : 
                 new.append(lemme.lemmatize(word))
             new_words.append(new)
-        return new_words
-    def stem(self, words): 
+        self.Words =  new_words
+    def stem(self): 
         """Stemming using nltk"""
         porter_stem = PorterStemmer()
         new_words = []
-        for line in words : 
+        for line in self.Words : 
             new = []
             for word in line : 
                 new.append(porter_stem.stem(word))
             new_words.append(new)
-        return new_words
-        
-    def frequency_filtering(self, words):
+        self.Words = new_words
+    def frequency_filtering(self):
         """Bag of words indexation : return all the words with frequency > 2"""
         frequency = {}
-        dictionary = sum(words, [])
+        dictionary = sum(self.Words, [])
         dictionary = list(set(dictionary))
         for n in dictionary:
-            for list_ in words:
+            for list_ in self.Words:
                 if(n in list_):
                     if(n in frequency):
                         frequency[n] += 1
                     else:
                         frequency[n] = 1
         new_words = []
-        for list_ in words:
+        for list_ in self.Words:
             new_line = []
             for item in list_:
                 if(frequency[item] > 2):
                     new_line.append(item)
             new_words.append(new_line)
-        return new_words
-        
-    def tokenize(self, text):
-        tokens = self.extract_tokens(text)
-        tokens = self.clean_words(tokens)
-        tokens = self.lemmatize(tokens)
-        tokens = self.stem(tokens)
-        tokens = self.frequency_filtering(tokens)
-        return tokens
-    
-    
-    def ponderation(self):
-        tweets = self.dataset_cleaned['tweet']
-        tweets = np.array(tweets)
-        tweets_tokenized = self.tokenize(self.dataset_cleaned['tweet'])
-        tweets_tokenized_txt = [" ".join(x) for x in tweets_tokenized]
-        vectorizer = TfidfVectorizer()
-        tfidf_encodings = vectorizer.fit_transform(tweets_tokenized_txt)
-        tfidf_encodings_array = list(tfidf_encodings.toarray())
-        self.Dataset = pd.DataFrame(0, index = self.dataset.index, columns=["tweet"])
-        self.Dataset.tweet = tfidf_encodings_array
-        
+        self.Words = new_words
+    def indexing(self):
+        """Indexing : using the frequency to create a dataset""" 
+        self.dictionary = list(set(sum(self.Words, [])))
+        columns = self.dictionary
+        columns.append("label")
+        index_ = [e for e in range(len(self.dataset))]
+        self.Dataset = pd.DataFrame(0, index = index_, columns=columns)
+        self.Dataset.document = self.dataset.id.copy()
+        i = 0
+        for line in self.Words: 
+            for item in line:
+                self.Dataset.loc[i, item] += 1
+            i+=1
+
 
     def target(self) : 
         """store targets (labels) on a list"""
@@ -175,4 +166,3 @@ class CleanData :
                 cprint("[!] " , 'red' , end="")
                 print("Error target not in ('real' , 'fake') , crashing ..")
                 exit(0)
-        

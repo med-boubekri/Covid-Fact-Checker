@@ -1,7 +1,8 @@
-sklearn
-torch
 pandas
 re
 nltk
 gensim
 termcolor
+pyqt5
+sklearn
+torch
