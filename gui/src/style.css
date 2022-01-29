@@ -1,3 +1,6 @@
+* {
+    font-family: Arial, Helvetica, sans-serif;
+}
 QMainWindow  {
     background-image: url("images/bg.jpg"); 
     background-repeat: no-repeat; 
@@ -12,6 +15,21 @@ QPushButton {
     border-radius: 3px;
     border-color: #123da2;
 }
+
 QPushButton:hover {
     background-color: #02153f;
+}
+QLabel {
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+QMessageBox{
+    background: #090fc9c1;
+    border: none;
+    font-family: Arial;
+    font-style: normal;  
+    font-size: 15pt;
+    color: #6a1919e7 ; 
 }

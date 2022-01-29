@@ -3,3 +3,12 @@
 Lab_2.ipynb
 src/__pycache__/*
 .qt_for_python/*
+gui/src/__pycache__/*
+gui/src/__pycache__/clean.cpython-38.pyc
+gui/src/__pycache__/clean.cpython-39.pyc
+gui/src/__pycache__/model.cpython-39.pyc
+gui/__pycache__/*
+gui/__pycache__/main_window.cpython-39.pyc
+gui/__pycache__/results.cpython-39.pyc
+gui/main_window2.py
+gui/main_window3.py

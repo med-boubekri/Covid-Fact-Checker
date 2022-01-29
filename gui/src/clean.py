@@ -9,11 +9,24 @@ from nltk.stem import PorterStemmer
 from termcolor import cprint
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
-import sys
-import os
-from pprint import pprint
+import sys,os,timeit
 
 class CleanData : 
+    """
+        A class to Clean a Dataset provided in excel format.
+
+        Attributes
+        ----------
+            Dataset     : the cleaned dataset 
+            targets     : the targets of the Dataset (column 'label')
+            debug       : set to True to enter debug mode (prints all progress)
+            test        : set to True if the dataset to be cleaned shouldn't be in the vectorizer
+            vectorizer  : the vectorizer to turn lines of tweets into columns for our machine   
+
+        Methods
+        -------
+            clean(tweet) : clean a single line tweet  
+    """
     match_url = r'(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})'
     match_hashtag = r'#([^\s]+)'
     match_mention = r'@([^\s]+)'
@@ -22,8 +35,10 @@ class CleanData :
     def __init__(self , file , debug=False , test=False) :
         self.test =test
         self.debug =debug
+        if self.debug : 
+            start = timeit.default_timer()
         self.Dataset =pd.DataFrame()
-        cprint("[+] File :" , 'yellow' , end="")
+        cprint("[+] File: " , 'yellow' , end="")
         cprint(file)
         try : 
             self.dataset = pd.read_excel(file)
@@ -55,6 +70,9 @@ class CleanData :
                     print(e)
                 cprint("[!]"  , 'red' ,end="")
                 print("Error occured , exiting ... ")
+        if self.debug :
+            stop = timeit.default_timer()
+            cprint('Clean Time: '+ str(stop - start) , 'green')
     def clean_urls(self) : 
         """"Clean urls from datasets"""
         i = 0
@@ -224,6 +242,8 @@ class CleanData :
         tweet = re.sub(cls.match_mention, '', tweet)
         tweet = re.sub(cls.match_char, '', tweet)    
         tweet = tweet.lower()
-        tfidf_encoding = cls.vectorizer.transform(tweet)
-        pprint(tfidf_encoding.toarray())
-        return tweet
+        tfidf_encoding = cls.vectorizer.transform([tweet])
+        tfidf_encodings_array = list(tfidf_encoding.toarray())
+        Dataset = pd.DataFrame(0, index = [1], columns=["tweet"])
+        Dataset.tweet = tfidf_encodings_array
+        return Dataset

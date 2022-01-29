@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>422</width>
-    <height>260</height>
+    <height>298</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -37,20 +37,20 @@
       <enum>QLayout::SetNoConstraint</enum>
      </property>
      <item>
-      <spacer name="verticalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Maximum</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
+      <widget class="QLabel" name="label">
+       <property name="maximumSize">
         <size>
-         <width>10</width>
-         <height>15</height>
+         <width>10000</width>
+         <height>25</height>
         </size>
        </property>
-      </spacer>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
      </item>
      <item>
       <layout class="QHBoxLayout" name="brows_layout">

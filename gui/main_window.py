@@ -5,16 +5,21 @@
 # Created by: PyQt5 UI code generator 5.9.2
 #
 # WARNING! All changes made in this file will be lost!
-from src.clean import CleanData
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import  QFileDialog,QMessageBox
 from pathlib import Path
-import os
+from gui.src.clean import CleanData
+from gui.src.model import Train
+from gui.results import Ui_Results
+import os, sys 
 
 HOME = str(Path.home())
 
 class Ui_MainWindow(object):
+    def __init__(self , model):
+        self.model = model
     def setupUi(self, MainWindow):
+        self.MainWindow = MainWindow
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(433, 272)
         MainWindow.setFixedSize(QtCore.QSize(433, 272))
@@ -28,8 +33,11 @@ class Ui_MainWindow(object):
         self.vertical_layout.setSizeConstraint(QtWidgets.QLayout.SetNoConstraint)
         self.vertical_layout.setContentsMargins(0, 0, 0, 0)
         self.vertical_layout.setObjectName("vertical_layout")
-        spacerItem = QtWidgets.QSpacerItem(10, 15, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum)
-        self.vertical_layout.addItem(spacerItem)
+        self.label = QtWidgets.QLabel(self.verticalLayoutWidget)
+        self.label.setMaximumSize(QtCore.QSize(10000, 25))
+        self.label.setAlignment(QtCore.Qt.AlignCenter)
+        self.label.setObjectName("label")
+        self.vertical_layout.addWidget(self.label)
         self.brows_layout = QtWidgets.QHBoxLayout()
         self.brows_layout.setSizeConstraint(QtWidgets.QLayout.SetNoConstraint)
         self.brows_layout.setObjectName("brows_layout")
@@ -38,7 +46,7 @@ class Ui_MainWindow(object):
         self.file_path_edit.setObjectName("file_path_edit")
         self.brows_layout.addWidget(self.file_path_edit)
         self.browse_button = QtWidgets.QPushButton(self.verticalLayoutWidget)
-        self.browse_button.setMinimumSize(QtCore.QSize(40, 30))
+        self.browse_button.setMinimumSize(QtCore.QSize(80, 30))
         self.browse_button.setObjectName("browse_button")
         self.brows_layout.addWidget(self.browse_button)
         self.vertical_layout.addLayout(self.brows_layout)
@@ -65,9 +73,9 @@ class Ui_MainWindow(object):
         self.menu_help = QtWidgets.QMenu(self.menubar)
         self.menu_help.setObjectName("menu_help")
         MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
-        self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
+        # self.statusbar = QtWidgets.QStatusBar(MainWindow)
+        # self.statusbar.setObjectName("statusbar")
+        # MainWindow.setStatusBar(self.statusbar)
         self.actionRecent = QtWidgets.QAction(MainWindow)
         self.actionRecent.setObjectName("actionRecent")
         self.actionSource = QtWidgets.QAction(MainWindow)
@@ -91,6 +99,7 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Tweet Spam Covid 19 Detector v1.0 "))
+        self.label.setText(_translate("MainWindow", "Please choose a file containing the tweets"))
         self.browse_button.setText(_translate("MainWindow", "Browse"))
         self.real_or_fake.setText(_translate("MainWindow", "Real or Fake"))
         self.menu_file.setTitle(_translate("MainWindow", "File"))
@@ -104,25 +113,15 @@ class Ui_MainWindow(object):
         self.file_path_edit.setText(fname[0])
     def startmodel(self) : 
         if self.file_path_edit.text()  == "": 
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Critical)
-            msg.setText("Error")
-            msg.setInformativeText("Please choose a file \n ")
-            msg.setWindowTitle("Error")
-            msg.exec_()
+            self.error("file not found")
             return
         file  = self.file_path_edit.text() 
         if os.access(file, os.R_OK) == False : 
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Critical)
-            msg.setText("Error")
-            msg.setInformativeText("cannot access file\n ")
-            msg.setWindowTitle("Error")
-            msg.exec_()
+            self.error("cannot access file")
             return
         number_lines = 0
         results = {}
-        with open(file , 'r') as fd : 
+        with open(file , 'r' , errors="ignore") as fd : 
             lines = fd.readlines()
             for line in lines : 
                 line = line.strip()
@@ -130,23 +129,59 @@ class Ui_MainWindow(object):
                     continue
                 results[line] = self.predict(line)
                 number_lines += 1
+        self.nextpage(results)
+    def nextpage(self , results) :
+        """redirect to the results page"""
+        self.Results = QtWidgets.QWidget()
+        self.ui = Ui_Results(results)
+        self.ui.setupUi(self.Results)
+        self.Results.show()
     def predict(self , line) :
         """predict a tweet if it is real (true) or fake (false)"""
-        print("[+] lin : " , line)
-        print(CleanData.clean(line))
+        line = line.strip()
+        tweet_cleaned = CleanData.clean(line)
+        real = self.model.predict(tweet_cleaned)
+        if real :
+            return "Real"
+        else : 
+            return "Fake"
+    def error(self ,message) : 
+        """generate a error Message Box"""
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Critical)
+        msg.setText("Error")
+        msg.setInformativeText(message + "\n ")
+        msg.setWindowTitle("Error")
+        msg.exec_()
 
-        
 
 
+def main(): 
+    #Clean Train Set
+    os.chdir("gui")
+    inFile = "../Dataset/TrainSet.xlsx"
+    outFile = "../results/Cleaned_DS_test.csv"
+    train_set_data = CleanData( inFile , debug=True  , test = False)
+    #Clean Test set
+    inFile= "../Dataset/TestSet.xlsx"
+    test_set_data = CleanData( inFile , debug=True , test = True )
+    #Training the model
+    tester = Train(train_set_data.Dataset ,train_set_data.targets , test_set_data.Dataset , test_set_data.targets , debug=True)
+    #Starting the app
+    app = QtWidgets.QApplication(sys.argv)
+    MainWindow = QtWidgets.QMainWindow()
+    with open("src/style.css") as fd : 
+        app.setStyleSheet(fd.read())
+    ui = Ui_MainWindow(tester)
+    ui.setupUi(MainWindow)
+    MainWindow.show()
+    sys.exit(app.exec_())
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
-    with open("src/style.css") as fd : 
-        app.setStyleSheet(fd.read())
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
-

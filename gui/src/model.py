@@ -2,12 +2,11 @@ import torch
 import torch.nn
 import pandas as pd 
 from sklearn.model_selection import train_test_split
-from termcolor import cprint
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader 
 import torch.nn.functional as Functional
 import numpy as np
-from pprint import pprint
+from termcolor import cprint
 
 class Model(Dataset)  :
     def __init__(self , dataset , targets):
@@ -46,7 +45,6 @@ class Train() :
         float_arr_test = np.vstack(test_data.values[:, 0]).astype(np.float)
         self.test_set = torch.tensor(float_arr_test)
         self.test_targets = torch.tensor(test_targets).to(torch.float32)
-        print("self.data :" ,type(self.data))
         self.split()
         self.normalize()
         self.model()
@@ -126,4 +124,8 @@ class Train() :
                 test_loss /= len(self.test_DL)
                 test_correct /= len(self.test_DL.dataset)
         if self.debug :cprint(f"test_loss: {test_loss:.4f}, correct predictions: {test_correct*100:.2f}%" , 'green') 
-        
+    def predict(self , tweet) : 
+        tweet = np.vstack(tweet.values[:, 0]).astype(np.float32)
+        tweet = torch.tensor(tweet)  
+        results = self.net(tweet)
+        return int(torch.round(results).item()) == 1 

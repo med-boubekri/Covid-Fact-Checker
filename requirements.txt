@@ -1,3 +1,5 @@
+pathlib
+xlsxwriter
 pandas
 re
 nltk
