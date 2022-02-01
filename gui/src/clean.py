@@ -37,9 +37,9 @@ class CleanData :
         self.debug =debug
         if self.debug : 
             start = timeit.default_timer()
+            cprint("[+] File: " , 'yellow' , end="")
+            cprint(file)
         self.Dataset =pd.DataFrame()
-        cprint("[+] File: " , 'yellow' , end="")
-        cprint(file)
         try : 
             self.dataset = pd.read_excel(file)
             if self.debug : 
