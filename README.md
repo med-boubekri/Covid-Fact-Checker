@@ -3,7 +3,7 @@
 In this phase we are trying to clean data by 
 - Deleting urls
 - Deleting special characters (emojis, ??? ...)
-- Hamrmonization
+- Harmonization
 - Tokenization , stemming , and clean stopwords
 - Indexation and Ponderation
 
