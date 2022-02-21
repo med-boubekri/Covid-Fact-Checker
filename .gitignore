@@ -9,3 +9,4 @@ gui/main_window2.py
 gui/main_window3.py
 gui/src/__pycache__/clean.cpython-39.pyc
 gui/src/__pycache__/model.cpython-39.pyc
+results/*
