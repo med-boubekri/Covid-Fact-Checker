@@ -1,5 +1,7 @@
 .vscode/*
 .vscode/tasks.json
+results/*
+test_Dataset.csv
 Lab_2.ipynb
 src/__pycache__/
 .qt_for_python/
@@ -9,4 +11,3 @@ gui/main_window2.py
 gui/main_window3.py
 gui/src/__pycache__/clean.cpython-39.pyc
 gui/src/__pycache__/model.cpython-39.pyc
-results/*
