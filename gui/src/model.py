@@ -1,6 +1,5 @@
 import torch
-import torch.nn
-import pandas as pd 
+import torch.nn 
 from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader 
@@ -36,9 +35,22 @@ class MyNeural(torch.nn.Module):
 
 
 class Train() :
+    """
+        A class to Train&Test a Dataset provided in tensors.
+
+        Attributes
+        ----------
+            *_set       : the cleaned sets in tensor 
+            *_targets   : the targets of the Dataset (column 'label')
+            debug       : set to True to enter debug mode (prints all progress)
+
+        Methods
+        -------
+            predict(tweet) : return the prediction of the  tweet
+    """
     def __init__(self , data , targets , test_data , test_targets , debug=False):
-        self.debug = debug 
         """converting dataframes to tensors + launching the model"""
+        self.debug = debug 
         float_arr = np.vstack(data.values[:, 0]).astype(np.float)
         self.data = torch.tensor(float_arr)
         self.targets = torch.tensor(targets).to(torch.float32)
@@ -125,6 +137,7 @@ class Train() :
                 test_correct /= len(self.test_DL.dataset)
         if self.debug :cprint(f"test_loss: {test_loss:.4f}, correct predictions: {test_correct*100:.2f}%" , 'green') 
     def predict(self , tweet) : 
+        """predict a tweet"""
         tweet = np.vstack(tweet.values[:, 0]).astype(np.float32)
         tweet = torch.tensor(tweet)  
         results = self.net(tweet)
