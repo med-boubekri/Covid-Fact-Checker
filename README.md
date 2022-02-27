@@ -8,6 +8,7 @@
 <h4 align="center">Spam COVID-19 Detector</h4> 
 
 **About this project** :
+
 &emsp;&emsp;The goal of this project is to create a programme that predict if the tweet given is fake or real.
 ## Install : 
 
