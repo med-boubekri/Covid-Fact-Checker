@@ -48,9 +48,20 @@ class Train() :
         -------
             predict(tweet) : return the prediction of the  tweet
     """
-    def __init__(self , data , targets , test_data , test_targets , debug=False):
+    def __init__(self , data , targets , test_data , test_targets , debug=False, lr=0.0001, epochs=6):
         """converting dataframes to tensors + launching the model"""
         self.debug = debug 
+
+        self.lr = lr
+        self.epochs = epochs
+
+        self.training_loss = {}
+        self.validation_loss = {}
+        self.accuracy = {}
+        self.test_loss = 0.0
+        self.test_correct = 0.0
+        
+
         float_arr = np.vstack(data.values[:, 0]).astype(np.float)
         self.data = torch.tensor(float_arr)
         self.targets = torch.tensor(targets).to(torch.float32)
@@ -78,7 +89,6 @@ class Train() :
         self.validation_set = (self.validation_set - torch.mean(self.validation_set)) /  torch.std(self.validation_set) 
         self.test_set = (self.test_set - torch.mean(self.test_set)) /  torch.std(self.test_set) 
         
-    
     def model(self) :
         """modelize the datasets to prepare it for the model"""
         self.train = Model(self.train_set , self.train_targets)
@@ -90,12 +100,12 @@ class Train() :
         self.train_DL = DataLoader(self.train, batch_size=self.batch)
         self.test_DL = DataLoader(self.test, batch_size=self.batch)
         self.validation_DL = DataLoader(self.validation, batch_size=self.batch)
+    
     def training(self) :
         """Training the model"""
         self.net = MyNeural(self.data.shape[1])
         self.entropyloss = torch.nn.BCELoss()
-        self.optim = torch.optim.Adam(self.net.parameters(), lr=0.001)
-        self.epochs=6
+        self.optim = torch.optim.Adam(self.net.parameters(), lr=self.lr)
         for i in range(self.epochs): 
             self.net.train(mode=True)
             train_loss = 0.0
@@ -120,22 +130,23 @@ class Train() :
                     correct += torch.sum(torch.round(pred_targets) == targets).item()
                 valid_loss /= len(self.validation_DL)
                 correct /= len(self.validation_DL.dataset)
+                self.accuracy[i] = correct
                 if self.debug : cprint(f"epoch: {i}, train_loss: {train_loss:.4f}, valid_loss: {valid_loss:.4f}, correct predictions: {correct*100:.2f}%" , 'yellow') 
-            
+                self.validation_loss[i] = valid_loss
+                self.training_loss[i] = train_loss
     def testing(self) :
         """Testing the model"""
-        test_loss = 0.0
-        test_correct = 0
+        self.test_correct = 0
         with torch.no_grad():
-                for data, targets in self.test_DL:
-                    pred_targets = self.net(data)
-                    pred_targets = torch.flatten(pred_targets, start_dim=0)
-                    loss = self.entropyloss(pred_targets, targets)
-                    test_loss += loss.item()
-                    test_correct += torch.sum(torch.round(pred_targets) == targets).item()
-                test_loss /= len(self.test_DL)
-                test_correct /= len(self.test_DL.dataset)
-        if self.debug :cprint(f"test_loss: {test_loss:.4f}, correct predictions: {test_correct*100:.2f}%" , 'green') 
+            for data, targets in self.test_DL:
+                pred_targets = self.net(data)
+                pred_targets = torch.flatten(pred_targets, start_dim=0)
+                loss = self.entropyloss(pred_targets, targets)
+                self.test_loss += loss.item()
+                self.test_correct += torch.sum(torch.round(pred_targets) == targets).item()
+            self.test_loss /= len(self.test_DL)
+            self.test_correct /= len(self.test_DL.dataset)
+        if self.debug :cprint(f"test_loss: {self.test_loss:.4f}, correct predictions: {self.test_correct*100:.2f}%" , 'green') 
     def predict(self , tweet) : 
         """predict a tweet"""
         tweet = np.vstack(tweet.values[:, 0]).astype(np.float32)

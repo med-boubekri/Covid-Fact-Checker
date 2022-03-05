@@ -30,6 +30,7 @@ python main.py
 - **gui/results.py** : the results window gui 
 - **guit/src/model.py**:  the Model class
 - **gui/src/clean.py** : the Clean class 
+- **gui/main_visualisation.py** : to generate performance plots
 
 ## Results :
 ### &emsp; **Execution** : 
