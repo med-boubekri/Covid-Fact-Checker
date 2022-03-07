@@ -16,11 +16,12 @@
 In windows/linux execute the following in anaconda shell : 
 
 ```bash
-conda create --name Torch python=3.9.7
-conda activate Torch
-git clone https://github.com/med-boubekri/SpamCOVID-19.git
-pip install -r requirements.txt
-python main.py
+$ conda create --name Torch python=3.9.7
+$ conda activate Torch
+$ git clone https://github.com/med-boubekri/SpamCOVID-19.git
+$ cd SpamCOVID-19
+$ pip install -r requirements.txt
+$ python main.py
 ```
 &emsp; and then you choos the tweets in the tweets folder for test
 
@@ -30,6 +31,7 @@ python main.py
 - **gui/results.py** : the results window gui 
 - **guit/src/model.py**:  the Model class
 - **gui/src/clean.py** : the Clean class 
+- **tweets/tweets.txt** : file containing an example of tweets
 
 ## Results :
 ### &emsp; **Execution** : 
