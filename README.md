@@ -18,8 +18,8 @@ In windows/linux execute the following in anaconda shell :
 ```bash
 $ conda create --name Torch python=3.9.7
 $ conda activate Torch
-$ git clone https://github.com/med-boubekri/SpamCOVID-19.git
-$ cd SpamCOVID-19
+$ git clone https://github.com/med-boubekri/Covid-Fact-Checker.git
+$ cd Covid-Fact-Checker
 $ pip install -r requirements.txt
 $ python main.py
 ```
