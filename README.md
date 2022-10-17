@@ -9,7 +9,7 @@
 
 **About this project** :
 
-&emsp;&emsp;The goal of this project is to create a programme that predicts if a given tweet is fake or real.
+&emsp;&emsp;The goal of this project is to create a program that predicts if a given tweet is fake or real.
 ## Install : 
 
 &emsp;&emsp;I recommand using **Anaconda** environments , it really can save you a lot of trouble
