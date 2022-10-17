@@ -9,10 +9,10 @@
 
 **About this project** :
 
-&emsp;&emsp;The goal of this project is to create a programme that predict if the tweet given is fake or real.
+&emsp;&emsp;The goal of this project is to create a programme that predicts if a given tweet is fake or real.
 ## Install : 
 
-&emsp;&emsp;I recommand using **Anaconda** environments , it really can save you a lot of troubles
+&emsp;&emsp;I recommand using **Anaconda** environments , it really can save you a lot of trouble
 In windows/linux execute the following in anaconda shell : 
 
 ```bash
@@ -23,7 +23,7 @@ $ cd Covid-Fact-Checker
 $ pip install -r requirements.txt
 $ python main.py
 ```
-&emsp; and then you choos the tweets in the tweets folder for test
+&emsp; and then you choose the tweets in the tweets folder for testing
 
 ## Manual: 
 - **./main.py** : starts the programms 
